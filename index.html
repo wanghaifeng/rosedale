@@ -1,0 +1,94 @@
+<html lang="zh-CN">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/localization/messages_zh.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Form</title>
+    <form action="index.html" method="post" id="signup">
+        <h1>请您注册</h1>
+        <fieldset>
+            <label for="phone">电话：</label>
+            <input type="text" id="phone" name="phone" required>
+            <label for="name">姓名：</label>
+            <input type="text" id="name" name="user_name" required>
+            <label for="school">学校：</label>
+            <input type="text" id="school" name="user_school" required>
+            <div id="captcontainer">
+                <div class="row">
+                    <img src="captcha.php" alt="CAPTCHA Image" style="width:80%" class="captchaimg">
+                </div>
+                <div class="row">
+                    <label for="captcha">验证码：</label>
+                    <input type="text" name="captcha" id="captcha">
+                    <!-- captcha font http://www.dafont.com/crimes-times-six.font -->
+                </div>
+            </div>
+            <span id="submitresults"></span>
+        </fieldset>
+        <button type="submit">提 交</button>
+    </form>
+    <script type="text/javascript">
+    $.validator.addMethod("allPhone", function(v, e) {
+            return this.optional(e) || /^(([0\+]\d{2,3}-)?(0\d{2,3})-)?(\d{7,8})(-(\d{3,}))?$/.test(v) || /^(1(([35][0-9])|(47)|[8][01236789]))\d{8}$/.test(v);
+        },
+        "请输入正确的号码:区号-电话号码/手机号");
+    $("#signup").validate({
+        rules: {
+            phone: {
+                allPhone: true
+            }
+        }
+    });
+
+    $(document).ready(function() {
+        $("input").keyup(function() {
+            var val01 = $("#name").val();
+            var val02 = $("#phone").val();
+            var val03 = $("#school").val();
+            // check if each input has at least one character
+            // if yes, we display the CAPTCHA
+            if (val01 != "" && val02 != "" && val03 != "") {
+                $("#captcontainer").slideDown(450);
+            }
+        });
+
+        $("#signup").submit(function(e) {
+            e.preventDefault();
+            var usercaptchaval = $("#captcha").val();
+            if (usercaptchaval == "") {
+                usercaptchaval = "None!";
+            }
+
+
+            $.ajax({
+                url: "session-check.php",
+                cache: false
+            }).done(function(newstr) {
+                var captchasolve = newstr;
+                if (usercaptchaval.toUpperCase() === newstr.toUpperCase()) {
+                    return true;
+                } else {
+
+                    var newhtml = "<p><strong>验证码错误！<br></p>";
+
+                    $("#submitresults").html(newhtml);
+                    return false;
+                }
+            });
+        });
+
+    });
+    </script>
+</body>
+
+</html>
